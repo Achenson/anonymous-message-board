@@ -84,8 +84,23 @@ bob.save(function (err) {
         if (err) console.log(err);
 
         if (count > 0) {
-          console.log("the board is already in the db");
-          res.send("board in a db");
+          Board.findOne({ title: boardParam }).exec((err, data) => {
+            if (err) console.log(err);
+
+            let newThread = new Thread({
+              // id from db
+              board: data._id,
+              text: req.body.text,
+              delete_password: req.body.delete_password
+            });
+
+            newThread.save(err => {
+              if (err) return console.log(err);
+
+              console.log(`adding thread to ${boardParam}`);
+              res.redirect(`/b/${boardParam}`);
+            });
+          });
         } else {
           ///////////////////////////////////////////
           newBoard.save(err => {
