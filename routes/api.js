@@ -1,24 +1,22 @@
 /*
-*
-*
-*       Complete the API routing below
-*
-*
-*/
+ *
+ *
+ *       Complete the API routing below
+ *
+ *
+ */
 
-'use strict';
+"use strict";
 
 var dotenv = require("dotenv");
 var mongoose = require("mongoose");
 
-var expect = require('chai').expect;
+var expect = require("chai").expect;
 
-const Board = require('../models/BoardModel.js');
-const Thread = require('../models/ThreadModel.js')
-
+const Board = require("../models/BoardModel.js");
+const Thread = require("../models/ThreadModel.js");
 
 dotenv.config();
-
 
 const CONNECTION_STRING = process.env.DB;
 
@@ -48,14 +46,7 @@ var Author = mongoose.model('Author', authorSchema);
 
 */
 
-
-
-
-
-
-module.exports = function (app) {
-
-
+module.exports = function(app) {
   /*
 
 var bob = new Author({ name: 'Bob Smith' });
@@ -78,51 +69,48 @@ bob.save(function (err) {
 
 */
 
-  app.route('/api/threads/:board')
-    .post(function (req, res) {
-      let boardParam = req.body.board;
+  app.route("/api/threads/:board").post(function(req, res) {
+    let boardParam = req.body.board;
 
-      let newBoard = new Board({
-        title: boardParam,
+    let newBoard = new Board({
+      title: boardParam
+    });
 
-      })
+    Board.countDocuments(
+      {
+        title: boardParam
+      },
+      function(err, count) {
+        if (err) console.log(err);
 
-      newBoard.save( err => {
-        if (err) return console.log(err)
+        if (count > 0) {
+          console.log("the board is already in the db");
+          res.send("board in a db");
+        } else {
+          ///////////////////////////////////////////
+          newBoard.save(err => {
+            if (err) return console.log(err);
 
-        let newThread = new Thread({
-          board: newBoard._id,
-          text: req.body.text,
-          delete_password: req.body.delete_password
+            let newThread = new Thread({
+              board: newBoard._id,
+              text: req.body.text,
+              delete_password: req.body.delete_password
+            });
 
+            newThread.save(err => {
+              if (err) return console.log(err);
 
-        })
+              console.log("done");
 
-        newThread.save((err) => {
-          if (err) return console.log(err);
+              res.redirect(`/b/${boardParam}`);
+            });
+          });
 
-          console.log('done');
+          //////////////////////////////////////
+        }
+      }
+    );
+  });
 
-          res.redirect(`/b/${boardParam}`)
-
-
-        })
-
-
-      })
-
-
-
-
-
-    })
-
-
-
-
-
-  
-    
-  app.route('/api/replies/:board');
-
+  app.route("/api/replies/:board");
 };
