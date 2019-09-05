@@ -104,32 +104,51 @@ module.exports = function(app) {
             if (data.board.title !== board) {
               res.send("no board with this thread");
             } else {
-
-              if(deletePassword !== data.delete_password) {
-                res.send('incorrect password')
+              if (deletePassword !== data.delete_password) {
+                res.send("incorrect password");
               } else {
-                Thread.findByIdAndDelete(threadId)
-                  .exec( (err,data) => {
-                    if (err) console.log(err);
-                    console.log('deleted')
-                    res.send('success')
-                  })
-
-                
-
-
-
+                Thread.findByIdAndDelete(threadId).exec((err, data) => {
+                  if (err) console.log(err);
+                  console.log("deleted");
+                  res.send("success");
+                });
               }
-
-
-
-
-
-            
             }
           }
         });
-    });
+    })
 
-  app.route("/api/replies/:board");
+    .put(function(req, res) {
+      let ThreadId = req.body.thread_id;
+      let board = req.body.board;
+
+      Thread.findById(ThreadId)
+
+        .populate("board")
+        .exec((err, data) => {
+        if (err) console.log(err);
+
+        if (data === undefined || data === null) {
+          res.send("no matching id");
+        } else {
+          console.log(data);
+
+          if (data.board.title !== board) {
+            res.send("no board with this thread");
+          } else {
+            Thread.findByIdAndUpdate(ThreadId, {
+              $set: {
+                reported: true
+              }
+            }).exec((err, data) => {
+              if (err) console.log(err);
+
+              res.send("reported");
+            });
+          }
+        }
+      });
+
+      app.route("/api/replies/:board");
+    });
 };
