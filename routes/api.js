@@ -25,107 +25,111 @@ mongoose
   .then(() => console.log("connection succesfull"))
   .catch(err => console.log(err));
 
-/*
-
-var mongoose = require('mongoose')
-  , Schema = mongoose.Schema
-
-var authorSchema = Schema({
-  name    : String,
-  stories : [{ type: Schema.Types.ObjectId, ref: 'Story' }]
-});
-
-var storySchema = Schema({
-  author : { type: Schema.Types.ObjectId, ref: 'Author' },
-  title    : String
-});
-
-var Story  = mongoose.model('Story', storySchema);
-var Author = mongoose.model('Author', authorSchema);
-
-
-*/
-
 module.exports = function(app) {
-  /*
+  app
+    .route("/api/threads/:board")
+    .post(function(req, res) {
+      let boardParam = req.body.board;
 
-var bob = new Author({ name: 'Bob Smith' });
-
-bob.save(function (err) {
-  if (err) return handleError(err);
-
-  //Bob now exists, so lets create a story
-  var story = new Story({
-    title: "Bob goes sledding",
-    author: bob._id    // assign the _id from the our author Bob. This ID is created by default!
-  });
-
-  story.save(function (err) {
-    if (err) return handleError(err);
-    // Bob now has his story
-  });
-});
-
-
-*/
-
-  app.route("/api/threads/:board").post(function(req, res) {
-    let boardParam = req.body.board;
-
-    let newBoard = new Board({
-      title: boardParam
-    });
-
-    Board.countDocuments(
-      {
+      let newBoard = new Board({
         title: boardParam
-      },
-      function(err, count) {
-        if (err) console.log(err);
+      });
 
-        if (count > 0) {
-          Board.findOne({ title: boardParam }).exec((err, data) => {
-            if (err) console.log(err);
+      Board.countDocuments(
+        {
+          title: boardParam
+        },
+        function(err, count) {
+          if (err) console.log(err);
 
-            let newThread = new Thread({
-              // id from db
-              board: data._id,
-              text: req.body.text,
-              delete_password: req.body.delete_password
+          if (count > 0) {
+            Board.findOne({ title: boardParam }).exec((err, data) => {
+              if (err) console.log(err);
+
+              let newThread = new Thread({
+                // id from db
+                board: data._id,
+                text: req.body.text,
+                delete_password: req.body.delete_password
+              });
+
+              newThread.save(err => {
+                if (err) return console.log(err);
+
+                console.log(`adding thread to ${boardParam}`);
+                res.redirect(`/b/${boardParam}`);
+              });
             });
-
-            newThread.save(err => {
+          } else {
+            ///////////////////////////////////////////
+            newBoard.save(err => {
               if (err) return console.log(err);
 
-              console.log(`adding thread to ${boardParam}`);
-              res.redirect(`/b/${boardParam}`);
+              let newThread = new Thread({
+                board: newBoard._id,
+                text: req.body.text,
+                delete_password: req.body.delete_password
+              });
+
+              newThread.save(err => {
+                if (err) return console.log(err);
+
+                console.log("done");
+
+                res.redirect(`/b/${boardParam}`);
+              });
             });
-          });
-        } else {
-          ///////////////////////////////////////////
-          newBoard.save(err => {
-            if (err) return console.log(err);
 
-            let newThread = new Thread({
-              board: newBoard._id,
-              text: req.body.text,
-              delete_password: req.body.delete_password
-            });
-
-            newThread.save(err => {
-              if (err) return console.log(err);
-
-              console.log("done");
-
-              res.redirect(`/b/${boardParam}`);
-            });
-          });
-
-          //////////////////////////////////////
+            //////////////////////////////////////
+          }
         }
-      }
-    );
-  });
+      );
+    })
+
+    .delete(function(req, res) {
+      let board = req.body.board;
+      let threadId = req.body.thread_id;
+      let deletePassword = req.body.delete_password;
+
+      Thread.findById(threadId)
+        .populate("board")
+        .exec((err, data) => {
+          if (err) console.log(err);
+
+          if (data === undefined || data === null) {
+            res.send("no matching id");
+          } else {
+            console.log(data);
+
+            if (data.board.title !== board) {
+              res.send("no board with this thread");
+            } else {
+
+              if(deletePassword !== data.delete_password) {
+                res.send('incorrect password')
+              } else {
+                Thread.findByIdAndDelete(threadId)
+                  .exec( (err,data) => {
+                    if (err) console.log(err);
+                    console.log('deleted')
+                    res.send('success')
+                  })
+
+                
+
+
+
+              }
+
+
+
+
+
+            
+            }
+          }
+        });
+    });
 
   app.route("/api/replies/:board");
 };
