@@ -149,6 +149,75 @@ module.exports = function(app) {
         }
       });
 
-      app.route("/api/replies/:board");
-    });
+      
+    })
+
+
+    app
+      .route("/api/replies/:board")
+      .post (function (req, res) {
+
+        let threadId = req.body.thread_id;
+        let board = req.body.board;
+
+        let replyText = req.body.text;
+        let deletePassword = req.body.delete_password;
+
+
+        Thread.findById(threadId)
+          .populate('board')
+          .exec( (err, data) => {
+              
+        if (data === undefined || data === null) {
+          res.send("no matching id");
+        } else {
+          console.log(data);
+
+          if (data.board.title !== board) {
+            res.send("no board with this thread");
+          } else {
+
+            Thread.findByIdAndUpdate(threadId, {
+              $push: {
+                replies: {
+                  text: replyText,
+                  //created_on: {type: Date, default: new Date()},
+                  delete_password: deletePassword,
+                  //reported: {type: Boolean, default: false}
+                }
+              }
+
+            })
+              .exec( (err,data) => {
+                if (err) console.log(err);
+
+                res.send('OK')
+
+
+                
+              })
+
+
+            
+
+
+
+          }
+
+
+
+
+          }
+
+          })
+
+
+
+
+
+
+
+
+        })
+
 };

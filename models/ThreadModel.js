@@ -38,9 +38,9 @@ const ThreadSchema  = new mongoose.Schema({
     
   },
   replies: [{
-    text: String,
+    text: {type: String, required: true},
     created_on: {type: Date, default: new Date()},
-    delete_password: String,
+    delete_password: {type: String, required: true},
     reported: {type: Boolean, default: false}
 
   }]
