@@ -179,19 +179,26 @@ module.exports = function(app) {
 
             Thread.findByIdAndUpdate(threadId, {
               $push: {
+              
                 replies: {
                   text: replyText,
                   //created_on: {type: Date, default: new Date()},
                   delete_password: deletePassword,
                   //reported: {type: Boolean, default: false}
                 }
+              },
+              $set: {
+                bumped_on: new Date()
               }
+
 
             })
               .exec( (err,data) => {
                 if (err) console.log(err);
 
-                res.send('OK')
+
+
+                res.redirect(`/b/${board}/${threadId}`);
 
 
                 
