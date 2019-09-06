@@ -126,105 +126,143 @@ module.exports = function(app) {
 
         .populate("board")
         .exec((err, data) => {
-        if (err) console.log(err);
+          if (err) console.log(err);
 
-        if (data === undefined || data === null) {
-          res.send("no matching id");
-        } else {
-          console.log(data);
-
-          if (data.board.title !== board) {
-            res.send("no board with this thread");
+          if (data === undefined || data === null) {
+            res.send("no matching id");
           } else {
-            Thread.findByIdAndUpdate(ThreadId, {
-              $set: {
-                reported: true
-              }
-            }).exec((err, data) => {
-              if (err) console.log(err);
+            console.log(data);
 
-              res.send("reported");
-            });
-          }
-        }
-      });
-
-      
-    })
-
-
-    app
-      .route("/api/replies/:board")
-      .post (function (req, res) {
-
-        let threadId = req.body.thread_id;
-        let board = req.body.board;
-
-        let replyText = req.body.text;
-        let deletePassword = req.body.delete_password;
-
-
-        Thread.findById(threadId)
-          .populate('board')
-          .exec( (err, data) => {
-              
-        if (data === undefined || data === null) {
-          res.send("no matching id");
-        } else {
-          console.log(data);
-
-          if (data.board.title !== board) {
-            res.send("no board with this thread");
-          } else {
-
-            Thread.findByIdAndUpdate(threadId, {
-              $push: {
-              
-                replies: {
-                  text: replyText,
-                  //created_on: {type: Date, default: new Date()},
-                  delete_password: deletePassword,
-                  //reported: {type: Boolean, default: false}
+            if (data.board.title !== board) {
+              res.send("no board with this thread");
+            } else {
+              Thread.findByIdAndUpdate(ThreadId, {
+                $set: {
+                  reported: true
                 }
-              },
-              $set: {
-                bumped_on: new Date()
-              }
-
-
-            })
-              .exec( (err,data) => {
+              }).exec((err, data) => {
                 if (err) console.log(err);
 
+                res.send("reported");
+              });
+            }
+          }
+        });
+    });
 
+  app
+    .route("/api/replies/:board")
+    .post(function(req, res) {
+      let threadId = req.body.thread_id;
+      let board = req.body.board;
+
+      let replyText = req.body.text;
+      let deletePassword = req.body.delete_password;
+
+      Thread.findById(threadId)
+        .populate("board")
+        .exec((err, data) => {
+          if (data === undefined || data === null) {
+            res.send("no matching id");
+          } else {
+            console.log(data);
+
+            if (data.board.title !== board) {
+              res.send("no board with this thread");
+            } else {
+              Thread.findByIdAndUpdate(threadId, {
+                $push: {
+                  replies: {
+                    text: replyText,
+                    //created_on: {type: Date, default: new Date()},
+                    delete_password: deletePassword
+                    //reported: {type: Boolean, default: false}
+                  }
+                },
+                $set: {
+                  bumped_on: new Date()
+                }
+              }).exec((err, data) => {
+                if (err) console.log(err);
 
                 res.redirect(`/b/${board}/${threadId}`);
+              });
+            }
+          }
+        });
+    })
 
+    .put(function(req, res) {
+      let ThreadId = req.body.thread_id;
+      let board = req.body.board;
+      let replyId = req.body.reply_id;
+      console.log(replyId);
 
+      function isObjDotIdInData (arrOfReplies) {
+        console.log('reply iddddd');
+        console.log(replyId);
+        for (let el of arrOfReplies) {
+          console.log('idddddd')
+          console.log(el._id)
+          //has to be == !
+          if (el._id == replyId) return true;
+
+          
+        }
+        console.log('nope')
+        return false;
+      }
+
+      function objForSetReply (replyId) {
+        return {
+
+        }
+      }
+
+      Thread.findById(ThreadId)
+
+        .populate("board")
+        .exec((err, data) => {
+          if (err) console.log(err);
+
+          if (data === undefined || data === null) {
+            res.send("no matching thread id");
+          } else {
+            console.log(data);
+
+            if (data.board.title !== board) {
+              res.send("no board with this thread");
+            } else if (
+           !isObjDotIdInData(data.replies)
+              ) {
+              res.send("no matching reply id");
+            } else {
+              //pure mongobd methods
+              Thread.update({'_id': ThreadId, 'replies._id': replyId}, {
+                $set: {
+                  'replies.$.reported': true
+                  
+                    
+                  
+                }
+               
+                 
                 
-              })
+              }).exec((err, data) => {
+                console.log('second data');
+                
+                console.log(data)
+                if (err) console.log(err);
 
-
-            
-
-
-
+                res.send("reported");
+              });
+            }
           }
 
+      
 
+        });
 
-
-          }
-
-          })
-
-
-
-
-
-
-
-
-        })
-
+    
+    });
 };
