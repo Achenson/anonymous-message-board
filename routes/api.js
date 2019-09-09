@@ -196,28 +196,22 @@ module.exports = function(app) {
       let ThreadId = req.body.thread_id;
       let board = req.body.board;
       let replyId = req.body.reply_id;
-      console.log(replyId);
+      
 
-      function isObjDotIdInData (arrOfReplies) {
-        console.log('reply iddddd');
+      function isObjDotIdInData(arrOfReplies) {
+        console.log("reply iddddd");
         console.log(replyId);
         for (let el of arrOfReplies) {
-          console.log('idddddd')
-          console.log(el._id)
+          console.log("idddddd");
+          console.log(el._id);
           //has to be == !
           if (el._id == replyId) return true;
-
-          
         }
-        console.log('nope')
+        console.log("nope");
         return false;
       }
 
-      function objForSetReply (replyId) {
-        return {
-
-        }
-      }
+     
 
       Thread.findById(ThreadId)
 
@@ -232,37 +226,133 @@ module.exports = function(app) {
 
             if (data.board.title !== board) {
               res.send("no board with this thread");
-            } else if (
-           !isObjDotIdInData(data.replies)
-              ) {
+            } else if (!isObjDotIdInData(data.replies)) {
               res.send("no matching reply id");
             } else {
               //pure mongobd methods
-              Thread.update({'_id': ThreadId, 'replies._id': replyId}, {
-                $set: {
-                  'replies.$.reported': true
-                  
-                    
-                  
+              Thread.update(
+                { _id: ThreadId, "replies._id": replyId },
+                {
+                  $set: {
+                    "replies.$.reported": true
+                  }
                 }
-               
-                 
-                
-              }).exec((err, data) => {
-                console.log('second data');
-                
-                console.log(data)
+              ).exec((err, data) => {
+                console.log("second data");
+
+                console.log(data);
                 if (err) console.log(err);
 
                 res.send("reported");
               });
             }
           }
+        });
+    })
+
+    .delete(function(req, res) {
+      let ThreadId = req.body.thread_id;
+      let board = req.body.board;
+      let replyId = req.body.reply_id;
+      let deletePassword = req.body.delete_password
 
       
 
-        });
+      function isObjDotIdInData(arrOfReplies) {
+       
+        for (let el of arrOfReplies) {
+          
+          //has to be '==' !
 
-    
+          if (el._id == replyId) {
+            console.log('isObjIdInData == true');
+            
+            return true;
+          };
+        }
+        console.log("nope");
+        return false;
+
+      }
+
+      function isPasswordValid (arrOfReplies) {
+
+        //if (arrOfReplies[arrOfReplies.indexOf(arrOfReplies._id)].delete_password == deletePassword){
+
+
+
+        //let indexOfReplyWithQueryId = arrOfReplies.indexOf(arrOfReplies._id);
+
+        let indexOfReplyWithQueryId = -1;
+
+        for (let el of arrOfReplies) {
+          if (el._id == replyId) {
+            indexOfReplyWithQueryId = arrOfReplies.indexOf(el);
+
+          }
+        }
+
+
+        console.log(indexOfReplyWithQueryId);
+        
+
+
+          if (arrOfReplies[indexOfReplyWithQueryId].delete_password == deletePassword){
+          console.log('password correct');
+          
+          return true;
+        } else {
+          console.log('password incorrect');
+          
+          return false
+        }
+
+      }
+
+ 
+
+      Thread.findById(ThreadId)
+
+        .populate("board")
+        .exec((err, data) => {
+          if (err) console.log(err);
+
+          if (data === undefined || data === null) {
+            res.send("no matching thread id");
+          } else {
+            console.log(data);
+
+            if (data.board.title !== board) {
+              res.send("no board with this thread");
+            } else if (!isObjDotIdInData(data.replies)) {
+              console.log(data.replies);
+              
+              res.send("no matching reply id");
+            } else if (!isPasswordValid(data.replies)) {
+              res.send('wrong password')
+
+
+            } else {
+
+              //pure mongobd methods
+              Thread.updateOne(
+                { _id: ThreadId, "replies._id": replyId },
+                {
+                  $pull: 
+                    {replies: {_id: replyId} }
+                  
+                }
+              ).exec((err, data) => {
+                console.log("second data");
+
+                console.log(data);
+                if (err) console.log(err);
+
+                res.send("success");
+              });
+            }
+          }
+        });
     });
+
 };
