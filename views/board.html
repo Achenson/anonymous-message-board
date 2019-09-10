@@ -33,7 +33,19 @@
     <script>
       $(function() {
         var currentBoard = window.location.pathname.slice(3,-1);
-        var url = "/api/threads/"+currentBoard;
+        console.log(window.location.pathname)
+        console.log(window.location.pathname.slice(3,-1));
+
+        console.log(currentBoard);
+        let boardDecoded = decodeURIComponent(currentBoard);
+       
+        console.log(boardDecoded);
+      
+
+        var url = "/api/threads/"+boardDecoded;
+
+        
+        //let myURL = new URL(location.origin + "/api/books");
         $('#boardTitle').text('Welcome to '+window.location.pathname)
         $.ajax({
           type: "GET",
