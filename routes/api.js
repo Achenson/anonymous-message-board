@@ -199,6 +199,45 @@ module.exports = function(app) {
 
   app
     .route("/api/replies/:board")
+    .get(function(req, res) {
+      // /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
+
+      let board = req.params.board;
+
+      let threadId = req.query.thread_id;
+
+      //geting id from Board (because only board._id is in Thread Model)
+      Board.findOne({ title: board }).exec((err, data) => {
+        if (err) console.log(err);
+
+        let boardId = data._id;
+        //to ensure that correct board name was passet to the URL
+        Thread.findOne({ board: boardId, _id: threadId })
+          .select(
+            "_id created_on bumped_on text replies._id replies.text replies.created_on"
+          )
+
+          .exec((err, data) => {
+            if (err) console.log(err);
+
+            
+              data.replies.sort((a, b) => {
+                if (a.created_on < b.created_on) {
+                  return 1;
+                }
+                if (a.created_on > b.created_on) {
+                  return -1;
+                }
+
+                return 0;
+              });
+            
+
+            res.json(data);
+          });
+      });
+    })
+
     .post(function(req, res) {
       let threadId = req.body.thread_id;
       let board = req.body.board;
