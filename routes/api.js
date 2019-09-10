@@ -211,7 +211,7 @@ module.exports = function(app) {
         if (err) console.log(err);
 
         let boardId = data._id;
-        //to ensure that correct board name was passet to the URL
+        //only to ensure that correct board name was passed to the URL
         Thread.findOne({ board: boardId, _id: threadId })
           .select(
             "_id created_on bumped_on text replies._id replies.text replies.created_on"
@@ -220,18 +220,16 @@ module.exports = function(app) {
           .exec((err, data) => {
             if (err) console.log(err);
 
-            
-              data.replies.sort((a, b) => {
-                if (a.created_on < b.created_on) {
-                  return 1;
-                }
-                if (a.created_on > b.created_on) {
-                  return -1;
-                }
+            data.replies.sort((a, b) => {
+              if (a.created_on < b.created_on) {
+                return 1;
+              }
+              if (a.created_on > b.created_on) {
+                return -1;
+              }
 
-                return 0;
-              });
-            
+              return 0;
+            });
 
             res.json(data);
           });
@@ -403,10 +401,13 @@ module.exports = function(app) {
               res.send("wrong password");
             } else {
               //pure mongobd methods
-              Thread.updateOne(
+              Thread.update(
                 { _id: ThreadId, "replies._id": replyId },
                 {
-                  $pull: { replies: { _id: replyId } }
+                  //!!!!!!!!!!! mongodb: $(update)
+                  $set: {
+                    "replies.$.text": "[deleted]"
+                  }
                 }
               ).exec((err, data) => {
                 console.log("second data");
