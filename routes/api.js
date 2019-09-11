@@ -16,13 +16,11 @@ var expect = require("chai").expect;
 const Board = require("../models/BoardModel.js");
 const Thread = require("../models/ThreadModel.js");
 
-
 dotenv.config();
 
 const CONNECTION_STRING = process.env.DB;
 
 // /b/new%20board
-
 
 mongoose
   .connect(CONNECTION_STRING, { useNewUrlParser: true })
@@ -35,18 +33,11 @@ module.exports = function(app) {
     .get(function(req, res) {
       let board = req.params.board;
 
-
-
       //geting id from Board (because only board._id is in Thread Model)
       Board.findOne({ title: board }).exec((err, data) => {
         if (err) console.log(err);
 
         let boardId = data._id;
-
-
-
-
-
 
         Thread.find({ board: boardId })
           .select(
@@ -55,22 +46,15 @@ module.exports = function(app) {
           .sort({ bumped_on: -1 })
           .limit(10)
           .exec((err, data) => {
-
-
-
             if (err) console.log(err);
 
             // console.log(data[0].replies)
 
             //sorting replies in each thread
             for (let el of data) {
-
-
               el.replies.sort((a, b) => {
                 if (a.created_on < b.created_on) {
                   return 1;
-
-
                 }
                 if (a.created_on > b.created_on) {
                   return -1;
@@ -93,17 +77,9 @@ module.exports = function(app) {
       });
     })
 
-
-
-
-
-
-
-
     .post(function(req, res) {
-     // let boardParam = req.body.board;
-     let boardParam = req.params.board;
-
+      // let boardParam = req.body.board;
+      let boardParam = req.params.board;
 
       let newBoard = new Board({
         title: boardParam
@@ -115,8 +91,6 @@ module.exports = function(app) {
         },
         function(err, count) {
           if (err) console.log(err);
-
-
 
           if (count > 0) {
             Board.findOne({ title: boardParam }).exec((err, data) => {
@@ -191,14 +165,13 @@ module.exports = function(app) {
               }
             }
           }
-
         });
     })
 
     .put(function(req, res) {
       let ThreadId = req.body.thread_id;
       let board = req.body.board;
-
+      //let board = req.params.board;
       Thread.findById(ThreadId)
 
         .populate("board")
@@ -438,14 +411,10 @@ module.exports = function(app) {
                   // text in an array
                   $set: {
                     "replies.$.text": "[deleted]"
-
-
                   }
                 }
               ).exec((err, data) => {
                 console.log("second data");
-
-
 
                 console.log(data);
                 if (err) console.log(err);
