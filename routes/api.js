@@ -40,9 +40,8 @@ module.exports = function(app) {
         let boardId = data._id;
 
         Thread.find({ board: boardId })
-        //
-        //
-        //
+       
+        //!!!!!!!!!! population board, to get board.title in case of board.html 
           .populate("board")
           .select(
             "_id created_on bumped_on text board replies._id replies.text replies.created_on"
@@ -154,6 +153,7 @@ module.exports = function(app) {
             res.send("no matching id");
           } else {
             console.log(data);
+            
 
             if (data.board.title !== board) {
               res.send("no board with this thread");
