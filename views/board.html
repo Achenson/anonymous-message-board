@@ -118,12 +118,13 @@
                     rep.created_on +
                     ")</p>"
                 );
+                //input name=board added here !!!!!!! to get proper board name to endpoint
                 thread.push(
                   '<form id="reportReply"><input type="hidden" name="thread_id" value="' +
                     ele._id +
                     '"><input type="hidden" name="reply_id" value="' +
                     rep._id +
-                    '"><input type="submit" value="Report"></form>'
+                    '"><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="submit" value="Report"></form>'
                 );
                 thread.push(
                   '<form id="deleteReply"><input type="hidden" value="' +
@@ -144,6 +145,11 @@
               thread.push(
                 '<input type="hidden" name="thread_id" value="' + ele._id + '">'
               );
+              ////
+              thread.push(
+                '<input type="hidden" name="board" value="'+ ele.board.title + '">'
+              );
+              /////
               thread.push(
                 '<textarea rows="5" cols="80" type="text" placeholder="Quick reply..." name="text" required=""></textarea><br>'
               );
@@ -177,6 +183,7 @@
           e.preventDefault();
         });
         
+        // put - reporting reply
         $("#boardDisplay").on("submit", "#reportReply", function(e) {
           var url = "/api/replies/" + currentBoard;
           $.ajax({
@@ -191,7 +198,7 @@
         });
 
 
-        // delete Thread
+        // works - deleting Thread
         $("#boardDisplay").on("submit", "#deleteThread", function(e) {
           var url = "/api/threads/" + currentBoard;
           $.ajax({
@@ -204,6 +211,8 @@
           });
           e.preventDefault();
         });
+
+        // delete - deleting reply
         $("#boardDisplay").on("submit", "#deleteReply", function(e) {
           var url = "/api/replies/" + currentBoard;
           $.ajax({

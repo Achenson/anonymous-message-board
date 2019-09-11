@@ -249,7 +249,7 @@ module.exports = function(app) {
 
     .post(function(req, res) {
 
-    // thread.push('<form id="reportThread"><input type="hidden" name="report_id" value="'+ele._id+'"><input type="submit" value="Report"></form>');
+    
 
       let threadId = req.body.thread_id;
       
@@ -266,6 +266,7 @@ module.exports = function(app) {
             res.send("no matching id");
           } else {
             console.log(data);
+            
 
             if (data.board.title !== board) {
               res.send("no board with this thread");
