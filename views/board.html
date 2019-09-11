@@ -118,7 +118,7 @@
                     rep.created_on +
                     ")</p>"
                 );
-                //input name=board added here !!!!!!! to get proper board name to endpoint
+                //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
                 thread.push(
                   '<form id="reportReply"><input type="hidden" name="thread_id" value="' +
                     ele._id +
@@ -126,12 +126,14 @@
                     rep._id +
                     '"><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="submit" value="Report"></form>'
                 );
+                                //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
+
                 thread.push(
                   '<form id="deleteReply"><input type="hidden" value="' +
                     ele._id +
                     '" name="thread_id" required=""><input type="hidden" value="' +
                     rep._id +
-                    '" name="reply_id" required=""><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
+                    '" name="reply_id" required=""><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
                 );
                 thread.push("<p>" + rep.text + "</p>");
                 thread.push("</div>");
@@ -146,6 +148,7 @@
                 '<input type="hidden" name="thread_id" value="' + ele._id + '">'
               );
               ////
+              //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
               thread.push(
                 '<input type="hidden" name="board" value="'+ ele.board.title + '">'
               );

@@ -266,6 +266,7 @@ module.exports = function(app) {
             res.send("no matching id");
           } else {
             console.log(data);
+
             
 
             if (data.board.title !== board) {
