@@ -40,8 +40,12 @@ module.exports = function(app) {
         let boardId = data._id;
 
         Thread.find({ board: boardId })
+        //
+        //
+        //
+          .populate("board")
           .select(
-            "_id created_on bumped_on text replies._id replies.text replies.created_on"
+            "_id created_on bumped_on text board replies._id replies.text replies.created_on"
           )
           .sort({ bumped_on: -1 })
           .limit(10)
@@ -169,9 +173,13 @@ module.exports = function(app) {
     })
 
     .put(function(req, res) {
-      let ThreadId = req.body.thread_id;
+      
+      // if req.body.report_id (as is named in thread.html) is null or undefined
+      //then ThreadId becomes the value of req.body.thread_id (as is named in board.html)
+      let ThreadId = req.body.report_id || req.body.thread_id;
       let board = req.body.board;
       //let board = req.params.board;
+      
       Thread.findById(ThreadId)
 
         .populate("board")
@@ -240,7 +248,12 @@ module.exports = function(app) {
     })
 
     .post(function(req, res) {
+
+    // thread.push('<form id="reportThread"><input type="hidden" name="report_id" value="'+ele._id+'"><input type="submit" value="Report"></form>');
+
       let threadId = req.body.thread_id;
+      
+      console.log(threadId);
       let board = req.body.board;
 
       let replyText = req.body.text;

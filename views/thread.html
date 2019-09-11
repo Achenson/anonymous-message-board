@@ -24,11 +24,16 @@
             crossorigin="anonymous"></script>
     <script>
       $(function() {
+        
         var currentURL = window.location.pathname.slice(3);
+        
         currentURL = currentURL.split('/');
+        
         
         var url = "/api/replies/"+currentURL[0];
         $('#threadTitle').text(window.location.pathname);
+
+        
         $.ajax({
           type: "GET",
           url: url,
@@ -67,11 +72,13 @@
           }
         });
         
+
+        //works - submitting new thread
         $('#newThread').submit(function(){
           $(this).attr('action', "/api/threads/" + currentBoard);
         });
         
-        
+        // x
         $('#boardDisplay').on('submit','#reportThread', function(e) {
           var url = "/api/threads/"+currentURL[0];
           $.ajax({
@@ -82,6 +89,8 @@
           });
           e.preventDefault();
         });
+
+
         $('#boardDisplay').on('submit','#reportReply', function(e) {
           var url = "/api/replies/"+currentURL[0];
           $.ajax({

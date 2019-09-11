@@ -56,14 +56,16 @@
 
         //to properly get board name if it contains space
         let boardDecoded = decodeURIComponent(currentBoard);
-
+        //originally currentBoard instead of boardDecoded was here
         var url = "/api/threads/" + boardDecoded;
 
         //let myURL = new URL(location.origin + "/api/books");
         $("#boardTitle").text("Welcome to " + decodeURIComponent(window.location.pathname));
+        // works - fetching all the data
         $.ajax({
           type: "GET",
           url: url,
+          //data is an array of threads
           success: function(data) {
             var boardThreads = [];
             //
@@ -72,15 +74,17 @@
             //
             data.forEach(function(ele) {
               console.log(ele); //can I use typeScript please?!
+              //console.log(ele.board.title)
               var thread = ['<div class="thread">'];
               thread.push('<div class="main">');
               thread.push(
                 '<p class="id">id: ' + ele._id + " (" + ele.created_on + ")</p>"
               );
+              //input name=board added here
               thread.push(
                 '<form id="reportThread"><input type="hidden" name="report_id" value="' +
                   ele._id +
-                  '"><input type="submit" value="Report"></form>'
+                  '"><input type="hidden" name=board value="'+ ele.board.title + '"><input type="submit" value="Report"></form>'
               );
               thread.push(
                 '<form id="deleteThread"><input type="hidden" value="' +
@@ -151,10 +155,13 @@
           }
         });
 
+      //works - submiting new thread
         $("#newThread").submit(function() {
-          $(this).attr("action", "/api/threads/" + currentBoard);
+          $(this).attr("action", "/api/threads/" + boardDecoded);
         });
 
+
+        // put - report a thread
         $("#boardDisplay").on("submit", "#reportThread", function(e) {
           var url = "/api/threads/" + boardDecoded;
           $.ajax({
@@ -167,6 +174,7 @@
           });
           e.preventDefault();
         });
+        
         $("#boardDisplay").on("submit", "#reportReply", function(e) {
           var url = "/api/replies/" + currentBoard;
           $.ajax({
