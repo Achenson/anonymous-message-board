@@ -59,6 +59,7 @@
         //originally currentBoard instead of boardDecoded was here
         var url = "/api/threads/" + boardDecoded;
 
+        
         //let myURL = new URL(location.origin + "/api/books");
         $("#boardTitle").text("Welcome to " + decodeURIComponent(window.location.pathname));
         // works - fetching all the data
@@ -141,7 +142,7 @@
               thread.push('<div class="newReply">');
               thread.push(
                 '<form action="/api/replies/' +
-                  currentBoard +
+                  boardDecoded +
                   '/" method="post" id="newReply">'
               );
               thread.push(
@@ -188,7 +189,7 @@
         
         // put - reporting reply
         $("#boardDisplay").on("submit", "#reportReply", function(e) {
-          var url = "/api/replies/" + currentBoard;
+          var url = "/api/replies/" + boardDecoded;
           $.ajax({
             type: "PUT",
             url: url,
@@ -203,7 +204,7 @@
 
         // works - deleting Thread
         $("#boardDisplay").on("submit", "#deleteThread", function(e) {
-          var url = "/api/threads/" + currentBoard;
+          var url = "/api/threads/" + boardDecoded;
           $.ajax({
             type: "DELETE",
             url: url,
@@ -217,7 +218,7 @@
 
         // delete - deleting reply
         $("#boardDisplay").on("submit", "#deleteReply", function(e) {
-          var url = "/api/replies/" + currentBoard;
+          var url = "/api/replies/" + boardDecoded;
           $.ajax({
             type: "DELETE",
             url: url,
