@@ -25,21 +25,11 @@
     <script>
       $(function() {
 
-        /*
-
-             var currentBoard = window.location.pathname.slice(3, -1);
-
-        //to properly get board name if it contains space
-        let boardDecoded = decodeURIComponent(currentBoard);
-        //originally currentBoard instead of boardDecoded was here
-        var url = "/api/threads/" + boardDecoded;
-
+     
         
-        //let myURL = new URL(location.origin + "/api/books");
-        $("#boardTitle").text("Welcome to " + decodeURIComponent(window.location.pathname));
-        // works - fetching all the data
-        */
-        
+
+ 
+
         var currentURL = window.location.pathname.slice(3);
 
 
@@ -60,7 +50,7 @@
         $.ajax({
           type: "GET",
           url: url,
-          data:{thread_id: threadDecoded[1], board: threadDecoded[0]},
+          data:{thread_id: threadDecoded[1]},
           success: function(ele)
           {
             var boardThreads= [];
@@ -72,8 +62,11 @@
               var thread = ['<div class="thread">'];
               thread.push('<div class="main">')
               thread.push('<p class="id">id: '+ele._id+' ('+ele.created_on+')</p>');
-              thread.push('<form id="reportThread"><input type="hidden" name="report_id" value="'+ele._id+'"><input type="submit" value="Report"></form>');
-              thread.push('<form id="deleteThread"><input type="hidden" value="'+ele._id+'" name="thread_id" required=""><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>');
+                     // <input type="hidden" name="board" value="'+ ele.board.title + '">
+               //input name=board added here !!!!!!! to get proper board name to endpoint
+              thread.push('<form id="reportThread"><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="hidden" name="report_id" value="'+ele._id+'"><input type="submit" value="Report"></form>');
+               //input name=board added here !!!!!!! to get proper board name to endpoint
+              thread.push('<form id="deleteThread"><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="hidden" value="'+ele._id+'" name="thread_id" required=""><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>');
               thread.push('<h3>'+ele.text+'</h3>');
               thread.push('</div><div class="replies">');
               ele.replies.forEach(function(rep) {

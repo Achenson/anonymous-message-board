@@ -181,6 +181,7 @@ module.exports = function(app) {
         });
     })
 
+
     .put(function(req, res) {
       
       // if req.body.report_id (as is named in thread.html) is null or undefined
@@ -210,6 +211,7 @@ module.exports = function(app) {
               }).exec((err, data) => {
                 if (err) console.log(err);
 
+
                 res.send("reported");
               });
             }
@@ -218,13 +220,16 @@ module.exports = function(app) {
     });
 
 
-    
+
+
   app
     .route("/api/replies/:board")
     .get(function(req, res) {
       // /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
 
 
+
+      
       let board = req.params.board;
 
       console.log('board');
@@ -239,7 +244,9 @@ module.exports = function(app) {
         let boardId = data._id;
         //only to ensure that correct board name was passed to the URL
         Thread.findOne({ board: boardId, _id: threadId })
+          .populate("board")
           .select(
+
             "_id created_on bumped_on text replies._id replies.text replies.created_on"
           )
 
