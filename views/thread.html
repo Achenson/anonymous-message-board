@@ -24,20 +24,43 @@
             crossorigin="anonymous"></script>
     <script>
       $(function() {
+
+        /*
+
+             var currentBoard = window.location.pathname.slice(3, -1);
+
+        //to properly get board name if it contains space
+        let boardDecoded = decodeURIComponent(currentBoard);
+        //originally currentBoard instead of boardDecoded was here
+        var url = "/api/threads/" + boardDecoded;
+
+        
+        //let myURL = new URL(location.origin + "/api/books");
+        $("#boardTitle").text("Welcome to " + decodeURIComponent(window.location.pathname));
+        // works - fetching all the data
+        */
         
         var currentURL = window.location.pathname.slice(3);
+
+
+        let threadDecoded = decodeURIComponent(currentURL);
+
+
         
-        currentURL = currentURL.split('/');
+        //currentURL = currentURL.split('/');
+        threadDecoded = threadDecoded.split('/');
+        console.log(threadDecoded[0]);
+        console.log(threadDecoded[1]);
         
-        
-        var url = "/api/replies/"+currentURL[0];
-        $('#threadTitle').text(window.location.pathname);
+        //currentURL[0]:
+        var url = "/api/replies/"+threadDecoded[0];
+        $('#threadTitle').text(decodeURIComponent(window.location.pathname));
 
         
         $.ajax({
           type: "GET",
           url: url,
-          data:{thread_id: currentURL[1]},
+          data:{thread_id: threadDecoded[1], board: threadDecoded[0]},
           success: function(ele)
           {
             var boardThreads= [];
@@ -62,7 +85,7 @@
                 thread.push('</div>')
               });
               thread.push('<div class="newReply">')
-              thread.push('<form action="/api/replies/'+currentURL[0]+'/" method="post" id="newReply">');
+              thread.push('<form action="/api/replies/'+threadDecoded[0]+'/" method="post" id="newReply">');
               thread.push('<input type="hidden" name="thread_id" value="'+ele._id+'">');
               thread.push('<textarea rows="5" cols="80" type="text" placeholder="Quick reply..." name="text" required=""></textarea><br>');
               thread.push('<input type="text" placeholder="password to delete" name="delete_password" required=""><input style="margin-left: 5px" type="submit" value="Submit">')
@@ -80,7 +103,7 @@
         
         // x
         $('#boardDisplay').on('submit','#reportThread', function(e) {
-          var url = "/api/threads/"+currentURL[0];
+          var url = "/api/threads/"+threadDecoded[0];
           $.ajax({
             type: "PUT",
             url: url,
@@ -92,7 +115,7 @@
 
 
         $('#boardDisplay').on('submit','#reportReply', function(e) {
-          var url = "/api/replies/"+currentURL[0];
+          var url = "/api/replies/"+threadDecoded[0];
           $.ajax({
             type: "PUT",
             url: url,
@@ -102,7 +125,7 @@
           e.preventDefault();
         });
         $('#boardDisplay').on('submit','#deleteThread', function(e) {
-          var url = "/api/threads/"+currentURL[0];
+          var url = "/api/threads/"+threadDecoded[0];
           $.ajax({
             type: "DELETE",
             url: url,
@@ -112,7 +135,7 @@
           e.preventDefault();
         });        
         $('#boardDisplay').on('submit','#deleteReply', function(e) {
-          var url = "/api/replies/"+currentURL[0];
+          var url = "/api/replies/"+threadDecoded[0];
           $.ajax({
             type: "DELETE",
             url: url,

@@ -9,6 +9,12 @@
 "use strict";
 
 
+
+
+
+
+
+
 var dotenv = require("dotenv");
 var mongoose = require("mongoose");
 
@@ -18,6 +24,8 @@ const Board = require("../models/BoardModel.js");
 const Thread = require("../models/ThreadModel.js");
 
 dotenv.config();
+
+
 
 const CONNECTION_STRING = process.env.DB;
 
@@ -209,12 +217,18 @@ module.exports = function(app) {
         });
     });
 
+
+    
   app
     .route("/api/replies/:board")
     .get(function(req, res) {
       // /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
 
+
       let board = req.params.board;
+
+      console.log('board');
+      console.log(board);
 
       let threadId = req.query.thread_id;
 
