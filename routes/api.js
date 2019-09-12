@@ -229,7 +229,7 @@ module.exports = function(app) {
 
 
 
-      
+
       let board = req.params.board;
 
       console.log('board');
@@ -249,6 +249,7 @@ module.exports = function(app) {
 
             "_id created_on bumped_on text replies._id replies.text replies.created_on"
           )
+
 
           .exec((err, data) => {
             if (err) console.log(err);
@@ -333,6 +334,12 @@ module.exports = function(app) {
         console.log("nope");
         return false;
       }
+
+
+
+      
+
+
 
       Thread.findById(ThreadId)
 
