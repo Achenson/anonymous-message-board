@@ -71,7 +71,7 @@ describe('API ROUTING FOR /api/threads/:board', function() {
   });
   /*
   describe('DELETE', function() {
-    
+    //delete tested manually
   });
   */
 
@@ -170,13 +170,55 @@ describe('API ROUTING FOR /api/replies/:board', function() {
     
   });
   
-  /*
+  
   describe('PUT', function() {
+    it('PUT - reporting reply', function(done) {
+      chai
+        .request(server)
+        .put('/api/replies/:board')
+        .send({
+          
+          board: 'new board',
+          thread_id: '5d7b820f9a2ad21bc8794a7f',
+          reply_id: '5d7b8465e6022510e8cb345f',
+          delete_password: 'for mocha'
+        })
+        .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, "text/html");
+        assert.equal(res.text, 'reported')
+
+        done()
+        })
+    })
+  
+
+  });
+
+
+  //not working yet
+  describe('DELETE', function() {
+    it('DELETE - deleting reply', function(done) {
+      chai
+        .request(server)
+        .delete('/api/replies/:board')
+        .send({
+          
+          board: 'new board',
+          thread_id: '5d7b820f9a2ad21bc8794a7f',
+          reply_id: '5d7b8465e6022510e8cb345f',
+          delete_password: 'mocha reply'
+        })
+        .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, "text/html");
+        assert.equal(res.text, 'success');
+
+        done()
+        })
+    })
+
     
   });
   
-  describe('DELETE', function() {
-    
-  });
-  */
 });
