@@ -70,12 +70,33 @@ describe('API ROUTING FOR /api/threads/:board', function() {
   describe('DELETE', function() {
     
   });
+  */
+
   
   describe('PUT', function() {
+    it('PUT - reporting thread', function(done) {
+      chai
+        .request(server)
+        .put('/api/threads/:board')
+        .send({
+          
+          board: 'new board',
+          thread_id: '5d7b820f9a2ad21bc8794a7f',
+          delete_password: 'for mocha'
+        })
+        .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, "text/html");
+        assert.equal(res.text, 'reported')
+
+        done()
+        })
+    })
+
     
   });
   
-  */
+  
 });
 
 /*
