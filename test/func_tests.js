@@ -29,6 +29,40 @@ describe('API ROUTING FOR /api/threads/:board', function() {
   });
   
   describe('GET', function() {
+    it('board: getting 10 threads with 3 replies', function(done) {
+      chai
+        .request(server)
+        .get('/api/threads/new board/')
+        .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, "application/json");
+        assert.isAtMost(res.body.length, 10);
+
+        assert.notProperty(res.body[0], 'delete_password');
+        assert.notProperty(res.body[0], 'reported');
+
+        assert.property(res.body[0], '_id');
+        assert.property(res.body[0], 'created_on');
+        assert.property(res.body[0], 'bumped_on');
+        assert.property(res.body[0], 'text');
+        assert.property(res.body[0], 'replies'); 
+        assert.property(res.body[0], 'board');   
+
+        assert.isAtMost(res.body[0].replies.length, 3);
+
+
+
+
+
+
+
+
+
+
+        done()
+        })
+    })
+
 
     
   });
