@@ -13,13 +13,13 @@ var helmet        = require('helmet');
 var app = express();
 
 //1
-//app.use(helmet.frameguard({action: 'sameorigin'}));
+app.use(helmet.frameguard({action: 'sameorigin'}));
 //2
-//app.use(helmet.dnsPrefetchControl())
+app.use(helmet.dnsPrefetchControl())
 //3 ? check with previous
-//app.use(helmet.contentSecurityPolicy({directives: {defaultSrc: ["'self'"], scriptSrc: ["'self'"]}}))
+app.use(helmet.contentSecurityPolicy({directives: {defaultSrc: ["'self'"], scriptSrc: ["'self'"]}}))
 
-app.use(helmet());
+//app.use(helmet());
 
 
 
