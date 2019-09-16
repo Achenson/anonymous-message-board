@@ -17,8 +17,8 @@ app.use(helmet.frameguard({action: 'sameorigin'}));
 //2
 app.use(helmet.dnsPrefetchControl())
 //3 ? check with previous
-app.use(helmet.contentSecurityPolicy({directives: {defaultSrc: ["'self'"], scriptSrc: ["'self'", 'https://code.jquery.com/jquery-3.4.1.min.js']}}))
-
+//app.use(helmet.contentSecurityPolicy({directives: {defaultSrc: ["'self'"], scriptSrc: ["'self'", 'https://code.jquery.com/jquery-3.4.1.min.js']}}))
+app.use(helmet.referrerPolicy({ policy: 'same-origin' }));
 //app.use(helmet());
 
 
