@@ -23,6 +23,11 @@ var expect = require("chai").expect;
 const Board = require("../models/BoardModel.js");
 const Thread = require("../models/ThreadModel.js");
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+//const myPlaintextPassword = 's0/\/\P4$$w0rD';
+//const someOtherPlaintextPassword = 'not_bacon';
+
 dotenv.config();
 
 
@@ -92,6 +97,16 @@ module.exports = function(app) {
     .post(function(req, res) {
       // let boardParam = req.body.board;
       let boardParam = req.params.board;
+      let passwordToHash = req.body.delete_password;
+      //bcrypt
+
+     // let myHash = ''
+
+     // bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
+        
+      //  let myHash = hash;
+     //});
+
 
       let newBoard = new Board({
         title: boardParam
@@ -113,6 +128,7 @@ module.exports = function(app) {
                 board: data._id,
                 text: req.body.text,
                 delete_password: req.body.delete_password
+                //delete_password: myHash
               });
 
               newThread.save(err => {
