@@ -8,15 +8,6 @@
 
 "use strict";
 
-
-
-
-
-
-
-
-
-
 var dotenv = require("dotenv");
 var mongoose = require("mongoose");
 
@@ -25,14 +16,12 @@ var expect = require("chai").expect;
 const Board = require("../models/BoardModel.js");
 const Thread = require("../models/ThreadModel.js");
 
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 //const myPlaintextPassword = 's0/\/\P4$$w0rD';
 //const someOtherPlaintextPassword = 'not_bacon';
 
 dotenv.config();
-
-
 
 const CONNECTION_STRING = process.env.DB;
 
@@ -56,8 +45,8 @@ module.exports = function(app) {
         let boardId = data._id;
 
         Thread.find({ board: boardId })
-       
-        //!!!!!!!!!! population board, to get board.title in case of board.html 
+
+          //!!!!!!!!!! population board, to get board.title in case of board.html
           .populate("board")
           .select(
             "_id created_on bumped_on text board replies._id replies.text replies.created_on"
@@ -100,10 +89,6 @@ module.exports = function(app) {
       // let boardParam = req.body.board;
       let boardParam = req.params.board;
       let passwordToHash = req.body.delete_password;
-    
-
-    
-
 
       let newBoard = new Board({
         title: boardParam
@@ -120,44 +105,30 @@ module.exports = function(app) {
             Board.findOne({ title: boardParam }).exec((err, data) => {
               if (err) console.log(err);
 
-             let myHash = ''
+              /////hash//////////////////////////
+              let myHash = "";
 
-          bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
+              bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
+                myHash = hash;
 
+                let newThread = new Thread({
+                  // id from db
+                  board: data._id,
+                  text: req.body.text,
+                  //delete_password: req.body.delete_password
+                  delete_password: myHash
+                });
 
-        
-            myHash = hash;
+                newThread.save(err => {
+                  if (err) return console.log(err);
 
-            let newThread = new Thread({
-              // id from db
-              board: data._id,
-              text: req.body.text,
-              //delete_password: req.body.delete_password
-              delete_password: myHash
+                  console.log(`adding thread to ${boardParam}`);
+                  res.redirect(`/b/${boardParam}/`);
+                });
+              });
             });
 
-            newThread.save(err => {
-              if (err) return console.log(err);
-
-              console.log(`adding thread to ${boardParam}`);
-              res.redirect(`/b/${boardParam}/`);
-            });
-
-
-
-
-
-          });
-
-
-
-             
-
-
-            });
-
-
-
+            // if there no board with this name
           } else {
             ///////////////////////////////////////////
             newBoard.save(err => {
@@ -185,6 +156,14 @@ module.exports = function(app) {
     })
 
     .delete(function(req, res) {
+      /*
+     //   bcrypt.compare(myPlaintextPassword, hash).then(function(res) {
+    // res == true
+//});
+bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
+    // res == false
+});
+      */
       let board = req.body.board;
       let threadId = req.body.thread_id;
       let deletePassword = req.body.delete_password;
@@ -198,11 +177,26 @@ module.exports = function(app) {
             res.send("no matching id");
           } else {
             console.log(data);
-            
 
             if (data.board.title !== board) {
               res.send("no board with this thread");
             } else {
+              bcrypt
+                .compare(deletePassword, data.delete_password)
+                .then(function(hashRes) {
+                  if (hashRes != true) {
+                    res.send("incorrect password");
+                  } else {
+                    Thread.findByIdAndDelete(threadId).exec((err, data) => {
+                      if (err) console.log(err);
+                      console.log("deleted");
+                      res.send("success");
+                    });
+                    
+                  }
+                });
+
+              /*
               if (deletePassword !== data.delete_password) {
                 res.send("incorrect password");
               } else {
@@ -212,20 +206,19 @@ module.exports = function(app) {
                   res.send("success");
                 });
               }
+              */
             }
           }
         });
     })
 
-
     .put(function(req, res) {
-      
       // if req.body.report_id (as is named in thread.html) is null or undefined
       //then ThreadId becomes the value of req.body.thread_id (as is named in board.html)
       let ThreadId = req.body.report_id || req.body.thread_id;
       let board = req.body.board;
       //let board = req.params.board;
-      
+
       Thread.findById(ThreadId)
 
         .populate("board")
@@ -247,7 +240,6 @@ module.exports = function(app) {
               }).exec((err, data) => {
                 if (err) console.log(err);
 
-
                 res.send("reported");
               });
             }
@@ -255,20 +247,14 @@ module.exports = function(app) {
         });
     });
 
-
-
-
   app
     .route("/api/replies/:board")
     .get(function(req, res) {
       // /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
 
-
-
-
       let board = req.params.board;
 
-      console.log('board');
+      console.log("board");
       console.log(board);
 
       let threadId = req.query.thread_id;
@@ -282,10 +268,8 @@ module.exports = function(app) {
         Thread.findOne({ board: boardId, _id: threadId })
           .populate("board")
           .select(
-
             "_id created_on bumped_on text replies._id replies.text replies.created_on"
           )
-
 
           .exec((err, data) => {
             if (err) console.log(err);
@@ -307,11 +291,8 @@ module.exports = function(app) {
     })
 
     .post(function(req, res) {
-
-    
-
       let threadId = req.body.thread_id;
-      
+
       console.log(threadId);
       let board = req.body.board;
 
@@ -325,8 +306,6 @@ module.exports = function(app) {
             res.send("no matching id");
           } else {
             console.log(data);
-
-            
 
             if (data.board.title !== board) {
               res.send("no board with this thread");
@@ -370,12 +349,6 @@ module.exports = function(app) {
         console.log("nope");
         return false;
       }
-
-
-
-      
-
-
 
       Thread.findById(ThreadId)
 
