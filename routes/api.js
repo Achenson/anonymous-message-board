@@ -192,7 +192,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
                       console.log("deleted");
                       res.send("success");
                     });
-                    
                   }
                 });
 
@@ -310,22 +309,33 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
             if (data.board.title !== board) {
               res.send("no board with this thread");
             } else {
-              Thread.findByIdAndUpdate(threadId, {
-                $push: {
-                  replies: {
-                    text: replyText,
-                    //created_on: {type: Date, default: new Date()},
-                    delete_password: deletePassword
-                    //reported: {type: Boolean, default: false}
-                  }
-                },
-                $set: {
-                  bumped_on: new Date()
-                }
-              }).exec((err, data) => {
-                if (err) console.log(err);
 
-                res.redirect(`/b/${board}/${threadId}/`);
+              let myHash = "";
+
+              bcrypt.hash(deletePassword, saltRounds).then(function(hash) {
+
+                myHash = hash;
+
+                Thread.findByIdAndUpdate(threadId, {
+                  $push: {
+                    replies: {
+                      text: replyText,
+                      //created_on: {type: Date, default: new Date()},
+                      //delete_password: deletePassword
+                      delete_password: hash
+                      //reported: {type: Boolean, default: false}
+                    }
+                  },
+
+                  
+                  $set: {
+                    bumped_on: new Date()
+                  }
+                }).exec((err, data) => {
+                  if (err) console.log(err);
+
+                  res.redirect(`/b/${board}/${threadId}/`);
+                });
               });
             }
           }
