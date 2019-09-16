@@ -98,14 +98,9 @@ module.exports = function(app) {
       // let boardParam = req.body.board;
       let boardParam = req.params.board;
       let passwordToHash = req.body.delete_password;
-      //bcrypt
+    
 
-     // let myHash = ''
-
-     // bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
-        
-      //  let myHash = hash;
-     //});
+    
 
 
       let newBoard = new Board({
@@ -123,21 +118,44 @@ module.exports = function(app) {
             Board.findOne({ title: boardParam }).exec((err, data) => {
               if (err) console.log(err);
 
-              let newThread = new Thread({
-                // id from db
-                board: data._id,
-                text: req.body.text,
-                delete_password: req.body.delete_password
-                //delete_password: myHash
-              });
+             let myHash = ''
 
-              newThread.save(err => {
-                if (err) return console.log(err);
+          bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
 
-                console.log(`adding thread to ${boardParam}`);
-                res.redirect(`/b/${boardParam}/`);
-              });
+
+        
+            myHash = hash;
+
+            let newThread = new Thread({
+              // id from db
+              board: data._id,
+              text: req.body.text,
+              //delete_password: req.body.delete_password
+              delete_password: myHash
             });
+
+            newThread.save(err => {
+              if (err) return console.log(err);
+
+              console.log(`adding thread to ${boardParam}`);
+              res.redirect(`/b/${boardParam}/`);
+            });
+
+
+
+
+
+          });
+
+
+
+             
+
+
+            });
+
+
+
           } else {
             ///////////////////////////////////////////
             newBoard.save(err => {
