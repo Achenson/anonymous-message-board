@@ -412,49 +412,45 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
         }
         console.log("nope");
         return false;
-
-
       }
       // argument is the array of Replies, which is later searched by _id
-    async function isPasswordValid(arrOfReplies) {
+      async function isPasswordValid(arrOfReplies) {
         //if (arrOfReplies[arrOfReplies.indexOf(arrOfReplies._id)].delete_password == deletePassword){
 
         //let indexOfReplyWithQueryId = arrOfReplies.indexOf(arrOfReplies._id);
 
-        let promise = new Promise ( (resolve, reject) => {
-
+        let promise = new Promise((resolve, reject) => {
           let indexOfReplyWithQueryId = -1;
 
-        for (let el of arrOfReplies) {
-          if (el._id == replyId) {
-            indexOfReplyWithQueryId = arrOfReplies.indexOf(el);
-          }
-        }
-
-        console.log(indexOfReplyWithQueryId);
-
-        //hash logic below !!!!!
-
-        bcrypt
-          .compare(
-            deletePassword,
-            arrOfReplies[indexOfReplyWithQueryId].delete_password
-          )
-          .then(function(hashRes) {
-            if (hashRes != true) {
-              console.log("password incorrect");
-              resolve(false);
-            } else {
-              console.log("password correct");
-              resolve(true);
+          for (let el of arrOfReplies) {
+            if (el._id == replyId) {
+              indexOfReplyWithQueryId = arrOfReplies.indexOf(el);
             }
-          });
+          }
 
-        })
+          console.log(indexOfReplyWithQueryId);
+
+          //hash logic below !!!!!
+
+          bcrypt
+            .compare(
+              deletePassword,
+              arrOfReplies[indexOfReplyWithQueryId].delete_password
+            )
+            .then(function(hashRes) {
+              if (hashRes != true) {
+                console.log("password incorrect");
+                resolve(false);
+              } else {
+                console.log("password correct");
+                resolve(true);
+              }
+            });
+        });
         //will return either true or false
         let awaitPromise = await promise;
-        console.log('await promise');
-        
+        console.log("await promise");
+
         console.log(awaitPromise);
 
         return awaitPromise;
@@ -495,28 +491,48 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
               console.log(data.replies);
 
               res.send("no matching reply id");
-            } else if (!isPasswordValid(data.replies)) {
-              res.send("wrong password");
             } else {
-              //pure mongobd methods
-              Thread.update(
-                { _id: ThreadId, "replies._id": replyId },
-                {
-                  //!!!!!!!!!!! mongodb: $(update) looking for the property
-                  // text in an array
-                  $set: {
-                    "replies.$.text": "[deleted]"
-                  }
+              async function deleteReply() {
+                let finalPromise = new Promise((resolve, reject) => {
+                  resolve(isPasswordValid(data.replies));
+                });
+
+                let awaitingFinalPromise = await finalPromise;
+                console.log("awaitingFinalPromise");
+                console.log(awaitingFinalPromise);
+
+                if (!awaitingFinalPromise) {
+                  res.send("wrong password");
+                } else {
+                  //pure mongobd methods
+                  Thread.update(
+                    { _id: ThreadId, "replies._id": replyId },
+                    {
+                      //!!!!!!!!!!! mongodb: $(update) looking for the property
+                      // text in an array
+                      $set: {
+                        "replies.$.text": "[deleted]"
+                      }
+                    }
+                  ).exec((err, data) => {
+                    console.log("second data");
+
+                    console.log(data);
+                    if (err) console.log(err);
+
+                    res.send("success");
+                  });
                 }
-              ).exec((err, data) => {
-                console.log("second data");
+              }
 
-                console.log(data);
-                if (err) console.log(err);
-
-                res.send("success");
-              });
+              deleteReply();
             }
+
+            // (!isPasswordValid(data.replies)) {
+
+            // } else {
+
+            // }
           }
         });
     });
