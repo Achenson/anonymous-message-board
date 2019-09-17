@@ -309,11 +309,9 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
             if (data.board.title !== board) {
               res.send("no board with this thread");
             } else {
-
               let myHash = "";
 
               bcrypt.hash(deletePassword, saltRounds).then(function(hash) {
-
                 myHash = hash;
 
                 Thread.findByIdAndUpdate(threadId, {
@@ -327,7 +325,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
                     }
                   },
 
-                  
                   $set: {
                     bumped_on: new Date()
                   }
@@ -415,14 +412,18 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
         }
         console.log("nope");
         return false;
-      }
 
-      function isPasswordValid(arrOfReplies) {
+
+      }
+      // argument is the array of Replies, which is later searched by _id
+    async function isPasswordValid(arrOfReplies) {
         //if (arrOfReplies[arrOfReplies.indexOf(arrOfReplies._id)].delete_password == deletePassword){
 
         //let indexOfReplyWithQueryId = arrOfReplies.indexOf(arrOfReplies._id);
 
-        let indexOfReplyWithQueryId = -1;
+        let promise = new Promise ( (resolve, reject) => {
+
+          let indexOfReplyWithQueryId = -1;
 
         for (let el of arrOfReplies) {
           if (el._id == replyId) {
@@ -432,9 +433,39 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
         console.log(indexOfReplyWithQueryId);
 
+        //hash logic below !!!!!
+
+        bcrypt
+          .compare(
+            deletePassword,
+            arrOfReplies[indexOfReplyWithQueryId].delete_password
+          )
+          .then(function(hashRes) {
+            if (hashRes != true) {
+              console.log("password incorrect");
+              resolve(false);
+            } else {
+              console.log("password correct");
+              resolve(true);
+            }
+          });
+
+        })
+        //will return either true or false
+        let awaitPromise = await promise;
+        console.log('await promise');
+        
+        console.log(awaitPromise);
+
+        return awaitPromise;
+
+        /*
         if (
+
           arrOfReplies[indexOfReplyWithQueryId].delete_password ==
           deletePassword
+
+
         ) {
           console.log("password correct");
 
@@ -444,6 +475,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
           return false;
         }
+*/
       }
 
       Thread.findById(ThreadId)
