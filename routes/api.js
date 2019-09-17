@@ -492,6 +492,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
               res.send("no matching reply id");
             } else {
+              
               async function deleteReply() {
                 let finalPromise = new Promise((resolve, reject) => {
                   resolve(isPasswordValid(data.replies));

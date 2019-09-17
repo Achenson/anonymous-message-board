@@ -204,10 +204,10 @@ describe('API ROUTING FOR /api/replies/:board', function() {
         .delete('/api/replies/:board')
         .send({
           
-          board: 'new board',
-          thread_id: '5d7b820f9a2ad21bc8794a7f',
-          reply_id: '5d7b8465e6022510e8cb345f',
-          delete_password: 'mocha reply'
+          board: 'new hash',
+          thread_id: '5d80e4ccfeeb6126b8052f9a',
+          reply_id: '5d80e4d6feeb6126b8052f9b',
+          delete_password: 'test'
         })
         .end(function (err, res) {
         assert.equal(res.status, 200);
