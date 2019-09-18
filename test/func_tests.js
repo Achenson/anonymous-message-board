@@ -22,6 +22,7 @@ describe('API ROUTING FOR /api/threads/:board', function() {
         assert.equal(res.status, 200);
         assert.equal(res.type, "text/html");
 
+        
         done()
         })
     })

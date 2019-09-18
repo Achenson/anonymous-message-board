@@ -1,11 +1,3 @@
-/*
- *
- *
- *       Complete the API routing below
- *
- *
- */
-
 "use strict";
 
 var dotenv = require("dotenv");
@@ -18,14 +10,10 @@ const Thread = require("../models/ThreadModel.js");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-//const myPlaintextPassword = 's0/\/\P4$$w0rD';
-//const someOtherPlaintextPassword = 'not_bacon';
 
 dotenv.config();
 
 const CONNECTION_STRING = process.env.DB;
-
-// /b/new%20board
 
 mongoose
   .connect(CONNECTION_STRING, { useNewUrlParser: true })
@@ -38,7 +26,7 @@ module.exports = function(app) {
     .get(function(req, res) {
       let board = req.params.board;
 
-      //geting id from Board (because only board._id is in Thread Model)
+      //geting id from Board (because in the Thread Model there is only board._id)
       Board.findOne({ title: board }).exec((err, data) => {
         if (err) console.log(err);
 
@@ -46,7 +34,7 @@ module.exports = function(app) {
 
         Thread.find({ board: boardId })
 
-          //!!!!!!!!!! population board, to get board.title in case of board.html
+          //populating board, to get board.title in board.html
           .populate("board")
           .select(
             "_id created_on bumped_on text board replies._id replies.text replies.created_on"
@@ -55,9 +43,6 @@ module.exports = function(app) {
           .limit(10)
           .exec((err, data) => {
             if (err) console.log(err);
-
-            // console.log(data[0].replies)
-
             //sorting replies in each thread
             for (let el of data) {
               el.replies.sort((a, b) => {
@@ -75,10 +60,6 @@ module.exports = function(app) {
             for (let el of data) {
               el.replies.splice(3, el.replies.length - 3);
             }
-
-            // console.log(data[0].replies)
-
-            //console.log(typeof data[0].replies[0].created_on);
 
             res.json(data);
           });
@@ -100,12 +81,11 @@ module.exports = function(app) {
         },
         function(err, count) {
           if (err) console.log(err);
-
+          //if the board is already in the db
           if (count > 0) {
             Board.findOne({ title: boardParam }).exec((err, data) => {
               if (err) console.log(err);
 
-              /////hash//////////////////////////
               let myHash = "";
 
               bcrypt.hash(passwordToHash, saltRounds).then(function(hash) {
@@ -115,7 +95,6 @@ module.exports = function(app) {
                   // id from db
                   board: data._id,
                   text: req.body.text,
-                  //delete_password: req.body.delete_password
                   delete_password: myHash
                 });
 
@@ -128,9 +107,8 @@ module.exports = function(app) {
               });
             });
 
-            // if there no board with this name
+            // if there no board in db with this name
           } else {
-            ///////////////////////////////////////////
             newBoard.save(err => {
               if (err) return console.log(err);
 
@@ -148,22 +126,12 @@ module.exports = function(app) {
                 res.redirect(`/b/${boardParam}`);
               });
             });
-
-            //////////////////////////////////////
           }
         }
       );
     })
 
     .delete(function(req, res) {
-      /*
-     //   bcrypt.compare(myPlaintextPassword, hash).then(function(res) {
-    // res == true
-//});
-bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
-    // res == false
-});
-      */
       let board = req.body.board;
       let threadId = req.body.thread_id;
       let deletePassword = req.body.delete_password;
@@ -194,18 +162,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
                     });
                   }
                 });
-
-              /*
-              if (deletePassword !== data.delete_password) {
-                res.send("incorrect password");
-              } else {
-                Thread.findByIdAndDelete(threadId).exec((err, data) => {
-                  if (err) console.log(err);
-                  console.log("deleted");
-                  res.send("success");
-                });
-              }
-              */
             }
           }
         });
@@ -213,13 +169,12 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
     .put(function(req, res) {
       // if req.body.report_id (as is named in thread.html) is null or undefined
-      //then ThreadId becomes the value of req.body.thread_id (as is named in board.html)
+      //then ThreadId becomes the value of req.body.thread_id (as it is named in board.html)
       let ThreadId = req.body.report_id || req.body.thread_id;
       let board = req.body.board;
       //let board = req.params.board;
 
       Thread.findById(ThreadId)
-
         .populate("board")
         .exec((err, data) => {
           if (err) console.log(err);
@@ -249,7 +204,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
   app
     .route("/api/replies/:board")
     .get(function(req, res) {
-      // /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
+      // e.g. /api/replies/new board?thread_id=5d76531f4365ca07c8014ed3
 
       let board = req.params.board;
 
@@ -344,13 +299,15 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
       let board = req.body.board;
       let replyId = req.body.reply_id;
 
+      // checking array of replies in a thread,
+      // checking if replyId matches any el of the array of replies
       function isObjDotIdInData(arrOfReplies) {
-        console.log("reply iddddd");
+        console.log("reply id");
         console.log(replyId);
         for (let el of arrOfReplies) {
-          console.log("idddddd");
+          console.log("id");
           console.log(el._id);
-          //has to be == !
+          //has to be '==', not working otherwise !
           if (el._id == replyId) return true;
         }
         console.log("nope");
@@ -373,7 +330,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
             } else if (!isObjDotIdInData(data.replies)) {
               res.send("no matching reply id");
             } else {
-              //pure mongobd methods
+              //pure mongodb methods
               Thread.update(
                 { _id: ThreadId, "replies._id": replyId },
                 {
@@ -400,13 +357,21 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
       let replyId = req.body.reply_id;
       let deletePassword = req.body.delete_password;
 
+      /*
+      logic summary here:
+      0. ... checking  threadId, board & replyId
+1. async function deleteReply() runs
+2. awaits promise -> when async function isPasswordValid(data.replies) resolves
+3. isPasswordValid -> promise zwraca true or false; resolve for this promise is inside another promise
+chained with then (to check if password is correct)
+4. following logic in deleteReply() depends on if isPasswordValid return true or false
+      */
+
       function isObjDotIdInData(arrOfReplies) {
         for (let el of arrOfReplies) {
           //has to be '==' !
-
           if (el._id == replyId) {
             console.log("isObjIdInData == true");
-
             return true;
           }
         }
@@ -415,10 +380,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
       }
       // argument is the array of Replies, which is later searched by _id
       async function isPasswordValid(arrOfReplies) {
-        //if (arrOfReplies[arrOfReplies.indexOf(arrOfReplies._id)].delete_password == deletePassword){
-
-        //let indexOfReplyWithQueryId = arrOfReplies.indexOf(arrOfReplies._id);
-
         let promise = new Promise((resolve, reject) => {
           let indexOfReplyWithQueryId = -1;
 
@@ -428,10 +389,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
             }
           }
 
-          console.log(indexOfReplyWithQueryId);
-
-          //hash logic below !!!!!
-
+          //hash logic below
           bcrypt
             .compare(
               deletePassword,
@@ -454,24 +412,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
         console.log(awaitPromise);
 
         return awaitPromise;
-
-        /*
-        if (
-
-          arrOfReplies[indexOfReplyWithQueryId].delete_password ==
-          deletePassword
-
-
-        ) {
-          console.log("password correct");
-
-          return true;
-        } else {
-          console.log("password incorrect");
-
-          return false;
-        }
-*/
       }
 
       Thread.findById(ThreadId)
@@ -492,7 +432,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
               res.send("no matching reply id");
             } else {
-              
               async function deleteReply() {
                 let finalPromise = new Promise((resolve, reject) => {
                   resolve(isPasswordValid(data.replies));
@@ -510,7 +449,7 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
                     { _id: ThreadId, "replies._id": replyId },
                     {
                       //!!!!!!!!!!! mongodb: $(update) looking for the property
-                      // text in an array
+                      // "text" in an array
                       $set: {
                         "replies.$.text": "[deleted]"
                       }
@@ -528,12 +467,6 @@ bcrypt.compare(someOtherPlaintextPassword, hash).then(function(res) {
 
               deleteReply();
             }
-
-            // (!isPasswordValid(data.replies)) {
-
-            // } else {
-
-            // }
           }
         });
     });

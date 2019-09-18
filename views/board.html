@@ -46,21 +46,25 @@
     <hr style="margin: 50px; margin-top: 200px" />
 
     <script
-    src="https://code.jquery.com/jquery-3.4.1.min.js"
-    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-    crossorigin="anonymous"></script>
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
     <script>
       $(function() {
+        //cutting 'b' in /b/threadname
         var currentBoard = window.location.pathname.slice(3, -1);
 
-        //to properly get board name if it contains space
+        //to properly get board name from URL if it contains space
+        //because space in URL is encoded
         let boardDecoded = decodeURIComponent(currentBoard);
         //originally currentBoard instead of boardDecoded was here
         var url = "/api/threads/" + boardDecoded;
 
-        
         //let myURL = new URL(location.origin + "/api/books");
-        $("#boardTitle").text("Welcome to " + decodeURIComponent(window.location.pathname));
+        $("#boardTitle").text(
+          "Welcome to " + decodeURIComponent(window.location.pathname)
+        );
         // works - fetching all the data
         $.ajax({
           type: "GET",
@@ -74,7 +78,7 @@
             //
             data.forEach(function(ele) {
               console.log(ele); //can I use typeScript please?!
-              console.log(ele.board.title)
+              console.log(ele.board.title);
               var thread = ['<div class="thread">'];
               thread.push('<div class="main">');
               thread.push(
@@ -84,13 +88,17 @@
               thread.push(
                 '<form id="reportThread"><input type="hidden" name="report_id" value="' +
                   ele._id +
-                  '"><input type="hidden" name=board value="'+ ele.board.title + '"><input type="submit" value="Report"></form>'
+                  '"><input type="hidden" name=board value="' +
+                  ele.board.title +
+                  '"><input type="submit" value="Report"></form>'
               );
-               //input name=board added here !!!!!!! to get proper board name to endpoint
+              //input name=board added here !!!!!!! to get proper board name to endpoint
               thread.push(
                 '<form id="deleteThread"><input type="hidden" value="' +
                   ele._id +
-                  '" name="thread_id" required=""><input type="hidden" name=board value="' + ele.board.title +'"><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
+                  '" name="thread_id" required=""><input type="hidden" name=board value="' +
+                  ele.board.title +
+                  '"><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
               );
               thread.push("<h3>" + ele.text + "</h3>");
               thread.push('</div><div class="replies">');
@@ -124,16 +132,20 @@
                     ele._id +
                     '"><input type="hidden" name="reply_id" value="' +
                     rep._id +
-                    '"><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="submit" value="Report"></form>'
+                    '"><input type="hidden" name="board" value="' +
+                    ele.board.title +
+                    '"><input type="submit" value="Report"></form>'
                 );
-                                //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
+                //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
 
                 thread.push(
                   '<form id="deleteReply"><input type="hidden" value="' +
                     ele._id +
                     '" name="thread_id" required=""><input type="hidden" value="' +
                     rep._id +
-                    '" name="reply_id" required=""><input type="hidden" name="board" value="'+ ele.board.title + '"><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
+                    '" name="reply_id" required=""><input type="hidden" name="board" value="' +
+                    ele.board.title +
+                    '"><input type="text" placeholder="password" name="delete_password" required=""><input type="submit" value="Delete"></form>'
                 );
                 thread.push("<p>" + rep.text + "</p>");
                 thread.push("</div>");
@@ -150,7 +162,9 @@
               ////
               //input type=hidden name=board added here !!!!!!! to get proper board name to endpoint
               thread.push(
-                '<input type="hidden" name="board" value="'+ ele.board.title + '">'
+                '<input type="hidden" name="board" value="' +
+                  ele.board.title +
+                  '">'
               );
               /////
               thread.push(
@@ -166,11 +180,10 @@
           }
         });
 
-      //works - submiting new thread
+        //works - submiting new thread
         $("#newThread").submit(function() {
           $(this).attr("action", "/api/threads/" + boardDecoded);
         });
-
 
         // works - put - report a thread
         $("#boardDisplay").on("submit", "#reportThread", function(e) {
@@ -185,7 +198,7 @@
           });
           e.preventDefault();
         });
-        
+
         // put - reporting reply
         $("#boardDisplay").on("submit", "#reportReply", function(e) {
           var url = "/api/replies/" + boardDecoded;
@@ -199,7 +212,6 @@
           });
           e.preventDefault();
         });
-
 
         // works - deleting Thread
         $("#boardDisplay").on("submit", "#deleteThread", function(e) {
