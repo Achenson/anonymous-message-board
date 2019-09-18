@@ -25,6 +25,9 @@ module.exports = function(app) {
     .route("/api/threads/:board")
     .get(function(req, res) {
       let board = req.params.board;
+      console.log("board name");
+
+      console.log(board);
 
       //geting id from Board (because in the Thread Model there is only board._id)
       Board.findOne({ title: board }).exec((err, data) => {
@@ -109,23 +112,40 @@ module.exports = function(app) {
 
             // if there no board in db with this name
           } else {
-            newBoard.save(err => {
-              if (err) return console.log(err);
+            //async function needed, so that when the page redirects,
+            // the new data is in the db already
+            asyncBoard();
 
-              let newThread = new Thread({
-                board: newBoard._id,
-                text: req.body.text,
-                delete_password: req.body.delete_password
+            async function asyncBoard() {
+              let boardPromise = new Promise((resolve, reject) => {
+                newBoard.save(err => {
+                  if (err) return console.log(err);
+
+                  let newThread = new Thread({
+                    board: newBoard._id,
+                    text: req.body.text,
+                    delete_password: req.body.delete_password
+                  });
+
+                  newThread.save(err => {
+                    if (err) return console.log(err);
+
+                    console.log("done");
+
+                    resolve("saved");
+                  });
+                });
               });
 
-              newThread.save(err => {
-                if (err) return console.log(err);
+              let boardPromiseResolve = await boardPromise;
 
-                console.log("done");
-
-                res.redirect(`/b/${boardParam}`);
-              });
-            });
+              if (boardPromiseResolve === "saved") {
+                res.redirect(`/b/${boardParam}/`);
+              } else {
+                console.log("board not saved");
+                res.send("board not saved");
+              }
+            }
           }
         }
       );

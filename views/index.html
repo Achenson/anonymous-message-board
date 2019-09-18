@@ -267,11 +267,21 @@
             integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
             crossorigin="anonymous"
       */
+
+
+
+      
       $(function() {
         $("#newThread").submit(function() {
           var board = $("#board1").val();
           $(this).attr("action", "/api/threads/" + board);
         });
+
+
+
+
+
+
         $("#newReply").submit(function() {
           var board = $("#board4").val();
           $(this).attr("action", "/api/replies/" + board);
